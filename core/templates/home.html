@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row gy-4 align-items-center">
+  <!-- Left: explanation -->
+  <div class="col-lg-7">
+    <div class="glass p-4 p-md-5 mb-3">
+      <span class="badge bg-info text-dark badge-pill mb-2">Automated Recruitment System</span>
+      <h1 class="fw-bold mb-3">Intelligent Resume Screening & Skill Recommendation</h1>
+      <p class="lead text-slate-200">
+        SkillMatch AI introduces an automated approach that
+        <strong>extracts, analyses, and evaluates resume data</strong> in a structured way
+        using <strong>Natural Language Processing</strong>.
+      </p>
+      <ul class="small text-slate-300 mb-3">
+        <li>Supports two roles – <strong>Administrator (Recruiter)</strong> &amp; <strong>Applicant (Job Seeker)</strong>.</li>
+        <li>Recruiter posts jobs with required skills, qualifications, and job details.</li>
+        <li>Applicant creates an account, browses jobs and uploads resumes (PDF / DOCX).</li>
+        <li>System parses resume (name, contact, education, experience, skills) using NLP tools like <strong>Pyresparser</strong>.</li>
+        <li>Generates a <strong>Resume Score</strong> and a <strong>Skill Recommendation</strong> list to improve employability.</li>
+      </ul>
+
+      <div class="d-flex flex-wrap gap-2">
+        <a href="/upload/" class="btn btn-info text-dark fw-semibold">I’m an Applicant</a>
+        <a href="/admin/" class="btn btn-outline-light fw-semibold">I’m a Recruiter</a>
+        <a href="/jobs/" class="btn btn-link text-info">Browse Jobs →</a>
+      </div>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-md-4">
+        <div class="glass p-3 text-center h-100">
+          <div class="fw-bold mb-1">NLP Powered</div>
+          <div class="small text-slate-300">Resume Parsing • TF-IDF • Cosine Similarity</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass p-3 text-center h-100">
+          <div class="fw-bold mb-1">Tech Stack</div>
+          <div class="small text-slate-300">Django • MySQL • Pyresparser • Matplotlib</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass p-3 text-center h-100">
+          <div class="fw-bold mb-1">Outcome</div>
+          <div class="small text-slate-300">Faster, unbiased & accurate candidate shortlisting</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right: role cards -->
+  <div class="col-lg-5">
+    <div class="glass p-4 mb-3">
+      <h5 class="mb-2">Applicant Dashboard</h5>
+      <p class="small text-slate-300">
+        Upload your resume, get a Resume Score for each job, and see the
+        <strong>skills you are missing</strong> for your target role.
+      </p>
+      <ul class="small text-slate-300">
+        <li>Upload resume (PDF / DOCX)</li>
+        <li>Automatic extraction of skills & experience</li>
+        <li>Resume Score vs each job</li>
+        <li>Skill Recommendation Module</li>
+      </ul>
+      <a href="/upload/" class="btn btn-sm btn-info text-dark fw-semibold">Open Applicant Flow</a>
+    </div>
+
+    <div class="glass p-4">
+      <h5 class="mb-2">Recruiter Console</h5>
+      <p class="small text-slate-300">
+        Post new openings, define required skills, view ranked applicants and analyze hiring performance
+        with interactive visualizations.
+      </p>
+      <ul class="small text-slate-300">
+        <li>Post jobs with required skills & qualifications</li>
+        <li>View automatically ranked resumes</li>
+        <li>Analytics with Matplotlib charts</li>
+      </ul>
+      <a href="/admin/" class="btn btn-sm btn-outline-light fw-semibold">Open Admin Panel</a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-7 col-lg-6">
+    <div class="glass p-4">
+      <h3 class="mb-3 text-center">Create your SkillMatch AI Account</h3>
+      <p class="small text-slate-300 text-center mb-4">
+        Register once using your <strong>email</strong> and <strong>mobile number</strong>.
+        If these details already exist, you’ll be asked to login instead.
+      </p>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email (will be your login username)</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Mobile Number</label>
+          <input type="text" name="phone" class="form-control" required>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" name="password1" class="form-control" required>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="password2" class="form-control" required>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-info text-dark w-100 fw-semibold">
+          Register
+        </button>
+      </form>
+
+      <p class="small text-center text-slate-300 mt-3 mb-0">
+        Already registered?
+        <a href="{% url 'login' %}" class="text-info">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

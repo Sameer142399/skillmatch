@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="glass p-4 mb-3">
+  <h3 class="mb-1">Resume Matching Scores</h3>
+  <p class="small text-slate-300 mb-0">
+    Each row shows how closely a parsed resume matches the job description.
+    Scores are computed using <strong>TF-IDF</strong> and <strong>cosine similarity</strong>,
+    and the system recommends missing skills for the applicant.
+  </p>
+</div>
+
+{% if scores %}
+  <div class="glass p-3">
+    <div class="table-responsive">
+      <table class="table table-dark table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Resume ID</th>
+            <th>Job Title</th>
+            <th style="width: 30%;">Resume Score</th>
+            <th>Recommended Skills (Skill Gap)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in scores %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ s.resume.id }}</td>
+              <td>{{ s.job.title }}</td>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div class="flex-grow-1 me-2">
+                    <div class="progress" style="height: 18px; background: #0f172a;">
+                      {% if s.value >= 70 %}
+                        <div class="progress-bar bg-success" data-progress="{{ s.value }}"></div>
+                      {% elif s.value >= 40 %}
+                        <div class="progress-bar bg-warning" data-progress="{{ s.value }}"></div>
+                      {% else %}
+                        <div class="progress-bar bg-danger" data-progress="{{ s.value }}"></div>
+                      {% endif %}
+                    </div>
+                  </div>
+                  <span class="fw-bold">{{ s.value }}%</span>
+                </div>
+              </td>
+              <td class="small">
+                {% if s.recommended_skills %}
+                  <span class="badge bg-light text-dark">
+                    {{ s.recommended_skills }}
+                  </span>
+                {% else %}
+                  <span class="text-success">Good match – no major missing skills.</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% else %}
+  <div class="glass p-4">
+    <p class="mb-0">No analysis yet. Upload a resume to generate scores and recommendations.</p>
+  </div>
+{% endif %}
+
+{% endblock %}

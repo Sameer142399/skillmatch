@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container py-4">
+  <h2 class="mb-2 fw-bold">My Applications & Resume Analysis</h2>
+  <p class="text-slate-300 mb-4">
+    These are your analysed resumes against different jobs.
+    Use the <strong>Recommended Skills</strong> to improve your resume before submitting to the recruiter.
+  </p>
+
+  <div class="glass p-3">
+    <table class="table table-dark table-striped align-middle mb-0">
+      <thead>
+        <tr>
+          <th>Job</th>
+          <th>Score</th>
+          <th>Recommended Skills</th>
+          <th>Status</th>
+          <th>Action</th>   <!-- 🔥 important -->
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in scores %}
+          <tr>
+            <td>{{ s.job.title }}</td>
+
+            <td>
+              <span class="badge bg-info text-dark fw-semibold">
+                {{ s.value }}%
+              </span>
+            </td>
+
+            <td class="small">
+              {{ s.recommended_skills|default:"–" }}
+            </td>
+
+            <td>
+              {% if s.status == "DRAFT" %}
+                <span class="badge bg-secondary">
+                  Draft (not submitted)
+                </span>
+              {% elif s.status == "SUBMITTED" %}
+                <span class="badge bg-warning text-dark">
+                  Submitted – waiting for review
+                </span>
+              {% elif s.status == "SHORTLISTED" %}
+                <span class="badge bg-success">
+                  Shortlisted ✅
+                </span>
+              {% elif s.status == "REJECTED" %}
+                <span class="badge bg-danger">
+                  Rejected
+                </span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if s.status == "DRAFT" %}
+                <form method="post" action="{% url 'submit_application' s.id %}">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-info text-dark">
+                    Submit to Recruiter
+                  </button>
+                </form>
+                <div class="small text-slate-400 mt-1">
+                  Edit your resume with these suggestions, then click submit.
+                </div>
+              {% else %}
+                <span class="small text-slate-300">
+                  No action available
+                </span>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="5" class="text-center text-slate-300">
+              No analysed applications yet. Upload your resume first.
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}

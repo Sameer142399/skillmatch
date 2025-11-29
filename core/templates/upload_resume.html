@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row gy-4">
+  <div class="col-lg-8">
+    <div class="glass p-4">
+      <h3 class="mb-2">Upload Resume</h3>
+      <p class="small text-slate-300">
+        The system will parse your resume content, analyse your skills and compare them with
+        each job’s requirements to generate a <strong>Resume Score</strong> and
+        <strong>Skill Recommendations</strong>.
+      </p>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags|default:'info' }} py-2">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- ✅ SINGLE, CORRECT FORM TAG -->
+      <form method="POST" enctype="multipart/form-data" class="upload-form">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label">Resume File (PDF / DOC / DOCX)</label>
+          <input type="file" name="resume" class="form-control" id="resumeInput" required>
+          <div class="form-text text-slate-400">
+            In the full system, Pyresparser + NLP extract name, contact, education, experience & skills.
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Extra Skills (optional, comma separated)</label>
+          <textarea
+            name="skills"
+            rows="4"
+            class="form-control"
+            placeholder="python, django, sql, machine learning"></textarea>
+          <div class="form-text text-slate-400">
+            These skills are added on top of the skills detected from your resume and then compared with each job using TF-IDF & cosine similarity.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-info text-dark fw-semibold">
+          Analyse Resume →
+        </button>
+      </form>  <!-- ✅ proper closing form -->
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="glass p-4 mb-3">
+      <h5 class="mb-2">How the analysis works</h5>
+      <ol class="small text-slate-300 mb-0">
+        <li>Resume content is parsed using NLP (Pyresparser in full implementation).</li>
+        <li>Important fields like skills, experience, education are extracted.</li>
+        <li>Candidate skills and job-required skills are represented using TF-IDF vectors.</li>
+        <li>Cosine similarity generates a Resume Score (0–100%).</li>
+        <li>Missing skills become <strong>Skill Recommendations</strong> for the applicant.</li>
+      </ol>
+    </div>
+
+    <div class="glass p-3 small">
+      <div class="fw-semibold mb-1">File Selected:</div>
+      <div id="fileName" class="text-slate-300">No file chosen yet.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const resumeInput = document.getElementById('resumeInput');
+  const fileName = document.getElementById('fileName');
+  if (resumeInput) {
+    resumeInput.addEventListener('change', function () {
+      fileName.textContent = this.files.length ? this.files[0].name : "No file chosen yet.";
+    });
+  }
+</script>
+
+{% endblock %}
