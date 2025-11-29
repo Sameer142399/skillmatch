@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: skillmatch
+    env: python
+    plan: free
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn skillmatch.wsgi"
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10"
+      - key: DJANGO_SETTINGS_MODULE
+        value: "skillmatch.settings"
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
