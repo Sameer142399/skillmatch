@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.models import User
 
 
 class Job(models.Model):
@@ -60,3 +62,19 @@ class Applicant(models.Model):
 
     def __str__(self):
         return self.full_name
+
+class Profile(models.Model):
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    email_otp = models.CharField(max_length=6, blank=True, null=True)
+    is_email_verified = models.BooleanField(default=False)
+
+    mobile_number = PhoneNumberField(region='IN')
+    mobile_otp = models.CharField(max_length=6, blank=True, null=True)
+    is_mobile_verified = models.BooleanField(default=False)
+
+    otp_created_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.user.username

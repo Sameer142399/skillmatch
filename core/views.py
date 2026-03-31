@@ -14,6 +14,11 @@ import io
 from PyPDF2 import PdfReader
 from docx import Document
 
+import random
+from django.core.mail import send_mail
+from django.conf import settings
+from twilio.rest import Client
+
 
 # =========================
 #   SIMPLE NLP UTILITIES
@@ -304,19 +309,25 @@ def toggle_shortlist(request, score_id):
 
 def register_view(request):
     """
-    Custom registration:
-    - username = email
-    - email must be unique
-    - phone number must be unique in Applicant
+    Registration with:
+    - Email OTP verification
+    - Mobile OTP verification
+    - Email as username
+    - Phone uniqueness
     """
+
     if request.method == "POST":
+
         full_name = request.POST.get("full_name", "").strip()
         email = request.POST.get("email", "").strip().lower()
         phone = request.POST.get("phone", "").strip()
         password1 = request.POST.get("password1")
         password2 = request.POST.get("password2")
 
-        # basic checks
+        # --------------------
+        # BASIC VALIDATION
+        # --------------------
+
         if not full_name or not email or not phone or not password1 or not password2:
             messages.error(request, "All fields are required.")
             return render(request, "register.html")
@@ -325,43 +336,84 @@ def register_view(request):
             messages.error(request, "Passwords do not match.")
             return render(request, "register.html")
 
-        # email uniqueness (since we use email as username)
+        # --------------------
+        # EMAIL UNIQUE CHECK
+        # --------------------
+
         if User.objects.filter(username=email).exists():
             messages.error(
                 request,
-                "User with this email already exists. Please login with your credentials."
+                "User with this email already exists. Please login."
             )
             return redirect("login")
 
-        # phone uniqueness
+        # --------------------
+        # PHONE UNIQUE CHECK
+        # --------------------
+
         if Applicant.objects.filter(phone=phone).exists():
             messages.error(
                 request,
-                "This mobile number is already registered. Please login with your credentials."
+                "This mobile number is already registered."
             )
             return redirect("login")
 
-        # create user
+        # --------------------
+        # CREATE USER (INACTIVE)
+        # --------------------
+
         user = User.objects.create_user(
             username=email,
             email=email,
             password=password1,
         )
 
-        # create applicant profile
-        Applicant.objects.create(
+        # VERY IMPORTANT
+        user.is_active = False
+        user.save()
+
+        # --------------------
+        # CREATE APPLICANT
+        # --------------------
+
+        applicant = Applicant.objects.create(
             user=user,
             full_name=full_name,
             phone=phone,
         )
 
+        # --------------------
+        # GENERATE OTPs
+        # --------------------
+
+        email_otp = generate_otp()
+        mobile_otp = generate_otp()
+
+        applicant.email_otp = email_otp
+        applicant.mobile_otp = mobile_otp
+        applicant.save()
+
+        # --------------------
+        # SEND OTPs
+        # --------------------
+
+        send_email_otp(email, email_otp)
+        send_mobile_otp(phone, mobile_otp)
+
+        # --------------------
+        # STORE USER ID IN SESSION
+        # --------------------
+
+        request.session['verify_user_id'] = user.id
+
         messages.success(
             request,
-            "Registration successful. You can now login with your email and password."
+            "OTP sent to your Email and Mobile. Please verify your account."
         )
-        return redirect("login")
 
-    # GET
+        return redirect("verify_otp")
+
+    # GET REQUEST
     return render(request, "register.html")
 
 
@@ -392,3 +444,62 @@ def logout_view(request):
     logout(request)
     messages.success(request, "You have been logged out.")
     return redirect("home")
+
+def generate_otp():
+    return str(random.randint(100000, 999999))
+
+def send_email_otp(email, otp):
+
+    send_mail(
+        "SkillMatch OTP Verification",
+        f"Your OTP is: {otp}",
+        settings.EMAIL_HOST_USER,
+        [email],
+        fail_silently=False,
+    )
+
+def send_mobile_otp(phone, otp):
+
+    client = Client(
+        settings.TWILIO_ACCOUNT_SID,
+        settings.TWILIO_AUTH_TOKEN
+    )
+
+    client.messages.create(
+        body=f"Your SkillMatch OTP is: {otp}",
+        from_=settings.TWILIO_PHONE_NUMBER,
+        to=str(phone)
+    )
+
+
+def verify_otp(request):
+
+    user_id = request.session.get('verify_user_id')
+
+    if not user_id:
+        return redirect('register')
+
+    user = User.objects.get(id=user_id)
+    applicant = Applicant.objects.get(user=user)
+
+    if request.method == "POST":
+
+        email_otp = request.POST.get("email_otp")
+        mobile_otp = request.POST.get("mobile_otp")
+
+        if applicant.email_otp == email_otp and applicant.mobile_otp == mobile_otp:
+
+            user.is_active = True
+            user.save()
+
+            applicant.is_email_verified = True
+            applicant.is_mobile_verified = True
+            applicant.save()
+
+            messages.success(request, "Account verified successfully.")
+            return redirect("login")
+
+        else:
+            messages.error(request, "Invalid OTP")
+
+    return render(request, "verify_otp.html")

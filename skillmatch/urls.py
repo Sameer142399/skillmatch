@@ -35,6 +35,8 @@ urlpatterns = [
         views.toggle_shortlist,
         name="toggle_shortlist",
     ),
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
+
 ]
 
 if settings.DEBUG:
